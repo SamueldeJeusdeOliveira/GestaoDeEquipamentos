@@ -11,6 +11,7 @@ namespace GestaoDeEquipamentos.Telas
             List<Equipamento> equipamentosCompartilhados = new List<Equipamento>();
             TelaEquipamentos telaEquipamentos = new TelaEquipamentos(equipamentosCompartilhados);
             TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados);
+            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados);
 
             while (true)
             {
@@ -30,7 +31,8 @@ namespace GestaoDeEquipamentos.Telas
                         telaChamados.MenuChamados();
                         break;
                     case '3':
-                        return;
+                        telaFabricantes.MenuFabricantes();
+                        break;
                 }
             }
         }

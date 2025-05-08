@@ -19,7 +19,8 @@ namespace GestaoDeEquipamentos.Telas
                 Console.WriteLine("GESTÃO DE EQUIPAMENTOS");
                 Console.WriteLine("(1) Gerir Equipamentos");
                 Console.WriteLine("(2) Gerir Chamados");
-                Console.WriteLine("(3) Sair");
+                Console.WriteLine("(3) Gerir Fabricantes");
+                Console.WriteLine("(4) Sair");
                 char opcao = char.Parse(Console.ReadLine());
 
                 switch (opcao)
@@ -33,6 +34,8 @@ namespace GestaoDeEquipamentos.Telas
                     case '3':
                         telaFabricantes.MenuFabricantes();
                         break;
+                    default:
+                        return;
                 }
             }
         }

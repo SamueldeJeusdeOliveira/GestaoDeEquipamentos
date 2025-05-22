@@ -7,46 +7,35 @@ namespace GestaoDeEquipamentos.Telas
     {
         private List<Equipamento> equipamentos;
         private List<Fabricantes> fabricantes;
-        public TelaFabricantes(List<Equipamento> equipamentos, List<Fabricantes> fabricantesList)
+        public TelaFabricantes(List<Equipamento> equipamentos, List<Fabricantes> fabricantesList, string entidade) : base(entidade)
         {
             fabricantes = fabricantesList;
             this.equipamentos = equipamentos;
             this.list = fabricantesList;
         }
 
-
         public void MenuFabricantes()
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("---- MENU DE FABRICANTES ----");
-                Console.WriteLine("(1) Cadastrar Fabricante");
-                Console.WriteLine("(2) Visualizar Fabricantes");
-                Console.WriteLine("(3) Editar Fabricante");
-                Console.WriteLine("(4) Excluir Fabricante");
-                Console.WriteLine("(5) Voltar");
-                Console.Write("Escolha uma opção: ");
-                string opcao = Console.ReadLine();
-
-                switch (opcao)
+                switch (ApresentarMenu())
                 {
-                    case "1":
+                    case '1':
                         Cadastrar();
                         break;
-                    case "2":
+                    case '2':
                         Visualizar();
                         break;
-                    case "3":
+                    case '3':
                         Editar();
                         break;
-                    case "4":
+                    case '4':
                         Excluir();
                         break;
-                    case "5":
+                    case '5':
                         return;
                     default:
-                        Console.WriteLine("Opção inválida!");
+                        Console.WriteLine("Opção inválida.");
                         break;
                 }
 

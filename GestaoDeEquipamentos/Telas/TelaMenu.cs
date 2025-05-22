@@ -9,9 +9,9 @@ namespace GestaoDeEquipamentos.Telas
             List<Equipamento> equipamentosCompartilhados = new List<Equipamento>();
             List<Fabricantes> fabricantesCompartilhados = new List<Fabricantes>();
 
-            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(fabricantesCompartilhados, equipamentosCompartilhados);
-            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados, fabricantesCompartilhados);
-            TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados);
+            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(fabricantesCompartilhados, equipamentosCompartilhados, "Equipamentos");
+            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados, fabricantesCompartilhados, "Fabricantes");
+            TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados, "Chamados");
 
 
             while (true)

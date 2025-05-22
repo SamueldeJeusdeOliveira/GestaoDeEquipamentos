@@ -10,7 +10,7 @@ namespace GestaoDeEquipamentos.Telas
     {
         private List<Equipamento> equipamentos;
 
-        public TelaChamados(List<Equipamento> equipamentos)
+        public TelaChamados(List<Equipamento> equipamentos, string entidade) : base(entidade)
         {
             this.equipamentos = equipamentos;
             this.list = new List<Chamado>();
@@ -20,31 +20,21 @@ namespace GestaoDeEquipamentos.Telas
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("---- MENU DE CHAMADOS ----");
-                Console.WriteLine("(1) Cadastrar");
-                Console.WriteLine("(2) Visualizar");
-                Console.WriteLine("(3) Editar");
-                Console.WriteLine("(4) Excluir");
-                Console.WriteLine("(5) Voltar");
-                Console.Write("Escolha uma opção: ");
-                string opcao = Console.ReadLine();
-
-                switch (opcao)
+                switch (ApresentarMenu())
                 {
-                    case "1":
+                    case '1':
                         Cadastrar();
                         break;
-                    case "2":
+                    case '2':
                         Visualizar();
                         break;
-                    case "3":
+                    case '3':
                         Editar();
                         break;
-                    case "4":
+                    case '4':
                         Excluir();
                         break;
-                    case "5":
+                    case '5':
                         return;
                     default:
                         Console.WriteLine("Opção inválida.");

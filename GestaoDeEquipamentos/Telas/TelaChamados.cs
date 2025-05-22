@@ -13,7 +13,7 @@ namespace GestaoDeEquipamentos.Telas
         public TelaChamados(List<Equipamento> equipamentos)
         {
             this.equipamentos = equipamentos;
-            this.list = new List<Chamado>(); // inicializa a lista herdada
+            this.list = new List<Chamado>();
         }
 
         public void MenuChamados()

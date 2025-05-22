@@ -1,6 +1,4 @@
 ﻿using GestaoDeEquipamentos.Entities;
-using System;
-using System.Collections.Generic;
 
 namespace GestaoDeEquipamentos.Telas
 {
@@ -9,19 +7,27 @@ namespace GestaoDeEquipamentos.Telas
         public void Menu()
         {
             List<Equipamento> equipamentosCompartilhados = new List<Equipamento>();
-            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(equipamentosCompartilhados);
+            List<Fabricantes> fabricantesCompartilhados = new List<Fabricantes>();
+
+            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(fabricantesCompartilhados, equipamentosCompartilhados);
+            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados, fabricantesCompartilhados);
             TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados);
-            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados);
+
 
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("GESTÃO DE EQUIPAMENTOS");
+                Console.WriteLine("---- GESTÃO DE EQUIPAMENTOS ----");
                 Console.WriteLine("(1) Gerir Equipamentos");
                 Console.WriteLine("(2) Gerir Chamados");
                 Console.WriteLine("(3) Gerir Fabricantes");
                 Console.WriteLine("(4) Sair");
-                char opcao = char.Parse(Console.ReadLine());
+                Console.Write("Escolha uma opção: ");
+
+                string entrada = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(entrada)) continue;
+
+                char opcao = entrada[0];
 
                 switch (opcao)
                 {
@@ -34,9 +40,15 @@ namespace GestaoDeEquipamentos.Telas
                     case '3':
                         telaFabricantes.MenuFabricantes();
                         break;
-                    default:
+                    case '4':
                         return;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        break;
                 }
+
+                Console.WriteLine("\nPressione qualquer tecla para continuar...");
+                Console.ReadKey();
             }
         }
     }

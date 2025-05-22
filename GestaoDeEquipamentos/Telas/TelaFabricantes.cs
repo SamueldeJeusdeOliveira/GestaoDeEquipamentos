@@ -1,18 +1,19 @@
 ﻿using GestaoDeEquipamentos.Entities;
-using System;
-using System.Collections.Generic;
+using GestaoDeEquipamentos.Repositorio;
 
 namespace GestaoDeEquipamentos.Telas
 {
-    class TelaFabricantes
+    class TelaFabricantes : Registro<Fabricantes>
     {
-        private List<Fabricantes> fabricantes = new List<Fabricantes>();
         private List<Equipamento> equipamentos;
-
-        public TelaFabricantes(List<Equipamento> equipamentos)
+        private List<Fabricantes> fabricantes;
+        public TelaFabricantes(List<Equipamento> equipamentos, List<Fabricantes> fabricantesList)
         {
+            fabricantes = fabricantesList;
             this.equipamentos = equipamentos;
+            this.list = fabricantesList;
         }
+
 
         public void MenuFabricantes()
         {
@@ -31,16 +32,16 @@ namespace GestaoDeEquipamentos.Telas
                 switch (opcao)
                 {
                     case "1":
-                        CadastrarFabricante();
+                        Cadastrar();
                         break;
                     case "2":
-                        VisualizarFabricantes();
+                        Visualizar();
                         break;
                     case "3":
-                        EditarFabricante();
+                        Editar();
                         break;
                     case "4":
-                        ExcluirFabricante();
+                        Excluir();
                         break;
                     case "5":
                         return;
@@ -49,50 +50,52 @@ namespace GestaoDeEquipamentos.Telas
                         break;
                 }
 
-                Console.WriteLine("Pressione qualquer tecla para continuar...");
+                Console.WriteLine("\nPressione qualquer tecla para continuar...");
                 Console.ReadKey();
             }
         }
 
-        private void CadastrarFabricante()
+        private void Cadastrar()
         {
-            Fabricantes fabricante = new Fabricantes();
-            fabricante.ID = fabricantes.Count + 1;
-
             Console.Write("Nome: ");
-            fabricante.Nome = Console.ReadLine();
+            string nome = Console.ReadLine();
 
             Console.Write("Email: ");
-            fabricante.Email = Console.ReadLine();
+            string email = Console.ReadLine();
 
             Console.Write("Telefone: ");
-            fabricante.Telefone = Console.ReadLine();
+            string telefone = Console.ReadLine();
 
-            fabricantes.Add(fabricante);
+            var fabricante = new Fabricantes(list.Count+1, nome, email, telefone);
+            Adicionar(fabricante);
             Console.WriteLine("Fabricante cadastrado com sucesso!");
         }
 
-        private void VisualizarFabricantes()
+        private void Visualizar()
         {
-            if (fabricantes.Count == 0)
+            if (list.Count == 0)
             {
                 Console.WriteLine("Nenhum fabricante cadastrado.");
                 return;
             }
 
-            foreach (var fab in fabricantes)
+            foreach (var fab in list)
             {
-                int qtdEquipamentos = equipamentos.FindAll(e => e.Fabricante == fab.Nome).Count;
-                Console.WriteLine($"ID: {fab.ID} | Nome: {fab.Nome} | Email: {fab.Email} | Telefone: {fab.Telefone} | Equipamentos Registrados: {qtdEquipamentos}");
+                int qtdEquipamentos = equipamentos.FindAll(e => e.Fabricante == fab).Count;
+                Console.WriteLine($"\nID: {fab.ID} | Nome: {fab.Nome} | Email: {fab.Email} | Telefone: {fab.Telefone} | Equipamentos Registrados: {qtdEquipamentos}");
             }
         }
 
-        private void EditarFabricante()
+        private void Editar()
         {
             Console.Write("Digite o ID do fabricante que deseja editar: ");
-            int id = int.Parse(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido!");
+                return;
+            }
 
-            Fabricantes fabricante = fabricantes.Find(f => f.ID == id);
+            var fabricante = list.Find(f => f.ID == id);
             if (fabricante == null)
             {
                 Console.WriteLine("Fabricante não encontrado.");
@@ -100,36 +103,45 @@ namespace GestaoDeEquipamentos.Telas
             }
 
             Console.Write("Novo Nome: ");
-            fabricante.Nome = Console.ReadLine();
+            string nome = Console.ReadLine();
 
             Console.Write("Novo Email: ");
-            fabricante.Email = Console.ReadLine();
+            string email = Console.ReadLine();
 
             Console.Write("Novo Telefone: ");
-            fabricante.Telefone = Console.ReadLine();
+            string telefone = Console.ReadLine();
 
+            fabricante.AtualiazaDados(nome, email, telefone);
             Console.WriteLine("Fabricante atualizado com sucesso!");
         }
 
-        private void ExcluirFabricante()
+        private void Excluir()
         {
             Console.Write("Digite o ID do fabricante que deseja excluir: ");
-            int id = int.Parse(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int id)){Console.WriteLine("ID inválido!");return;}
 
-            Fabricantes fabricante = fabricantes.Find(f => f.ID == id);
+            var fabricante = list.Find(f => f.ID == id);
             if (fabricante == null)
             {
                 Console.WriteLine("Fabricante não encontrado.");
                 return;
             }
 
-            fabricantes.Remove(fabricante);
+            // Verifica se há equipamentos vinculados a este fabricante
+            bool temEquipamentos = equipamentos.Exists(e => e.Fabricante == fabricante);
+            if (temEquipamentos)
+            {
+                Console.WriteLine("Não é possível excluir. Existem equipamentos vinculados a este fabricante.");
+                return;
+            }
+
+            Remover(fabricante);
             Console.WriteLine("Fabricante removido com sucesso!");
         }
 
         public List<Fabricantes> ObterFabricantes()
         {
-            return fabricantes;
+            return list;
         }
     }
 }

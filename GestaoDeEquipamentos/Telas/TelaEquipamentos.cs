@@ -1,143 +1,223 @@
 ﻿using GestaoDeEquipamentos.Entities;
+using GestaoDeEquipamentos.Repositorio;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
-internal class TelaEquipamentos
+namespace GestaoDeEquipamentos.Telas
 {
-    private List<Equipamento> equipamentos = new List<Equipamento>();
-    private int contadorId = 1;
-    public TelaEquipamentos(List<Equipamento> equipamentosExternos)
+    class TelaEquipamentos : Registro<Equipamento>
     {
-        equipamentos = equipamentosExternos;
-    }
+        private List<Fabricantes> fabricantes;
 
-    public void MenuEquipamento()
-    {
-        while (true)
+        public TelaEquipamentos(List<Fabricantes> listaFabricantes, List<Equipamento> equipamentosList)
+        {
+            fabricantes = listaFabricantes;
+            this.list = equipamentosList; 
+        }
+
+        public void MenuEquipamento()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("---- MENU DE EQUIPAMENTOS ----");
+                Console.WriteLine("(1) Cadastrar");
+                Console.WriteLine("(2) Visualizar");
+                Console.WriteLine("(3) Editar");
+                Console.WriteLine("(4) Excluir");
+                Console.WriteLine("(5) Voltar");
+                Console.Write("Escolha uma opção: ");
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        Cadastrar();
+                        break;
+                    case "2":
+                        Visualizar();
+                        break;
+                    case "3":
+                        Editar();
+                        break;
+                    case "4":
+                        Excluir();
+                        break;
+                    case "5":
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        break;
+                }
+
+                Console.WriteLine("\nPressione qualquer tecla para continuar...");
+                Console.ReadKey();
+            }
+        }
+
+        private void Cadastrar()
         {
             Console.Clear();
-            Console.WriteLine("(1) Visualizar o inventário");
-            Console.WriteLine("(2) Registrar um Equipamento");
-            Console.WriteLine("(3) Editar um Equipamento");
-            Console.WriteLine("(4) Excluir um Equipamento");
-            Console.WriteLine("(5) Voltar");
 
-            char opcao = char.Parse(Console.ReadLine());
-
-            switch (opcao)
+            Console.Write("Nome (mínimo 6 caracteres): ");
+            string nome = Console.ReadLine();
+            if (nome.Length < 6)
             {
-                case '1':
-                    VisualizarInventario();
-                    break;
-                case '2':
-                    RegistrarEquipamento();
-                    break;
-                case '3':
-                    EditarEquipamento();
-                    break;
-                case '4':
-                    ExcluirEquipamento();
-                    break;
-                case '5':
-                    return;
+                Console.WriteLine("Nome inválido.");
+                return;
             }
 
-            Console.WriteLine("Pressione qualquer tecla para continuar...");
-            Console.ReadKey();
-        }
-    }
+            Console.Write("Preço de aquisição: ");
+            if (!double.TryParse(Console.ReadLine(), out double preco))
+            {
+                Console.WriteLine("Preço inválido.");
+                return;
+            }
 
-    public void VisualizarInventario()
-    {
-        Console.Clear();
-        foreach (Equipamento e in equipamentos)
+            Console.Write("Número de série: ");
+            string numSerie = Console.ReadLine();
+
+            Console.Write("Data de fabricação (dd/mm/aaaa): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime dataFab))
+            {
+                Console.WriteLine("Data inválida.");
+                return;
+            }
+
+            if (fabricantes.Count == 0)
+            {
+                Console.WriteLine("Nenhum fabricante cadastrado. Cadastre um fabricante antes.");
+                return;
+            }
+
+            Console.WriteLine("Escolha o fabricante:");
+            for (int i = 0; i < fabricantes.Count; i++)
+            {
+                Console.WriteLine($"({i + 1}) {fabricantes[i].Nome}");
+            }
+
+            if (!int.TryParse(Console.ReadLine(), out int escolha) || escolha < 1 || escolha > fabricantes.Count)
+            {
+                Console.WriteLine("Opção inválida.");
+                return;
+            }
+
+            Equipamento equipamento = new Equipamento(
+                iD: list.Count + 1,
+                nome: nome,
+                precoAquisicao: preco,
+                numSerie: numSerie,
+                dataFabricacao: dataFab,
+                fabricante: fabricantes[escolha - 1]
+            );
+
+            Adicionar(equipamento);
+            Console.WriteLine("Equipamento registrado com sucesso!");
+        }
+
+        private void Visualizar()
         {
-            Console.WriteLine($"ID: {e.Id} | Nome: {e.Name} | Preço: R${e.PrecoAquisicao} | N° Série: {e.NumSerie} | Fabricação: {e.DataFabricacao.ToShortDateString()} | Fabricante: {e.Fabricante}");
+            Console.Clear();
+
+            if (list.Count == 0)
+            {
+                Console.WriteLine("Nenhum equipamento cadastrado.");
+                return;
+            }
+
+            foreach (Equipamento item in list)
+            {
+                Console.WriteLine($"ID: {item.ID} || NOME: {item.Nome} || PREÇO: {item.PrecoAquisicao:C} || Nº DE SÉRIE: {item.NumSerie} || FABRICADO EM: {item.DataFabricacao:dd/MM/yyyy} || FABRICANTE: {item.Fabricante?.Nome}");
+            }
         }
 
-        if (equipamentos.Count == 0)
-            Console.WriteLine("Nenhum equipamento registrado.");
-    }
-
-    public void RegistrarEquipamento()
-    {
-        Console.Clear();
-        Equipamento equipamento = new Equipamento();
-
-        equipamento.Id = contadorId++;
-
-        Console.Write("Nome (mín. 6 caracteres): ");
-        string nome = Console.ReadLine();
-        if (nome.Length < 6)
+        private void Editar()
         {
-            Console.WriteLine("Nome deve ter no mínimo 6 caracteres!");
-            return;
+            Console.Clear();
+            Visualizar();
+
+            Console.Write("\nDigite o ID do equipamento a editar: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
+
+            Equipamento equipamento = list.Find(e => e.ID == id);
+            if (equipamento == null)
+            {
+                Console.WriteLine("Equipamento não encontrado.");
+                return;
+            }
+
+            Console.Write("Novo nome: ");
+            string nome = Console.ReadLine();
+            if (nome.Length < 6)
+            {
+                Console.WriteLine("Nome deve ter no mínimo 6 caracteres.");
+                return;
+            }
+
+            Console.Write("Novo preço: ");
+            if (!double.TryParse(Console.ReadLine(), out double preco))
+            {
+                Console.WriteLine("Preço inválido.");
+                return;
+            }
+
+            Console.Write("Novo número de série: ");
+            string numSerie = Console.ReadLine();
+
+            Console.Write("Nova data de fabricação (dd/mm/aaaa): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime data))
+            {
+                Console.WriteLine("Data inválida.");
+                return;
+            }
+
+            Console.WriteLine("Escolha o novo fabricante:");
+            for (int i = 0; i < fabricantes.Count; i++)
+            {
+                Console.WriteLine($"({i + 1}) {fabricantes[i].Nome}");
+            }
+
+            if (!int.TryParse(Console.ReadLine(), out int escolha) || escolha < 1 || escolha > fabricantes.Count)
+            {
+                Console.WriteLine("Fabricante inválido.");
+                return;
+            }
+
+            equipamento.AtualiazaDados(nome, preco, numSerie, data, fabricantes[escolha - 1]);
+            Console.WriteLine("Equipamento atualizado com sucesso!");
         }
-        equipamento.Name = nome;
 
-        Console.Write("Preço de aquisição: ");
-        equipamento.PrecoAquisicao = double.Parse(Console.ReadLine());
-
-        Console.Write("Número de série: ");
-        equipamento.NumSerie = Console.ReadLine();
-
-        Console.Write("Data de fabricação (dd/mm/yyyy): ");
-        equipamento.DataFabricacao = DateTime.Parse(Console.ReadLine());
-
-        Console.Write("Fabricante: ");
-        equipamento.Fabricante = Console.ReadLine();
-
-        equipamentos.Add(equipamento);
-        Console.WriteLine("Equipamento registrado com sucesso!");
-    }
-
-    public void EditarEquipamento()
-    {
-        Console.Clear();
-        VisualizarInventario();
-        Console.Write("\nDigite o ID do equipamento que deseja editar: ");
-        int id = int.Parse(Console.ReadLine());
-
-        Equipamento equipamento = equipamentos.Find(e => e.Id == id);
-        if (equipamento == null)
+        private void Excluir()
         {
-            Console.WriteLine("Equipamento não encontrado.");
-            return;
+            Console.Clear();
+            Visualizar();
+
+            Console.Write("\nDigite o ID do equipamento a excluir: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
+
+            Equipamento equipamento = list.Find(e => e.ID == id);
+            if (equipamento == null)
+            {
+                Console.WriteLine("Equipamento não encontrado.");
+                return;
+            }
+
+            Remover(equipamento); 
+            Console.WriteLine("Equipamento excluído com sucesso.");
         }
 
-        Console.Write("Novo nome (mín. 6 caracteres): ");
-        string nome = Console.ReadLine();
-        if (nome.Length >= 6)
-            equipamento.Name = nome;
-
-        Console.Write("Novo preço de aquisição: ");
-        equipamento.PrecoAquisicao = double.Parse(Console.ReadLine());
-
-        Console.Write("Novo número de série: ");
-        equipamento.NumSerie = Console.ReadLine();
-
-        Console.Write("Nova data de fabricação (dd/mm/yyyy): ");
-        equipamento.DataFabricacao = DateTime.Parse(Console.ReadLine());
-
-        Console.Write("Novo fabricante: ");
-        equipamento.Fabricante = Console.ReadLine();
-
-        Console.WriteLine("Equipamento atualizado com sucesso!");
-    }
-
-    public void ExcluirEquipamento()
-    {
-        Console.Clear();
-        VisualizarInventario();
-        Console.Write("\nDigite o ID do equipamento que deseja excluir: ");
-        int id = int.Parse(Console.ReadLine());
-
-        Equipamento equipamento = equipamentos.Find(e => e.Id == id);
-        if (equipamento == null)
+        public List<Equipamento> ObterEquipamentos()
         {
-            Console.WriteLine("Equipamento não encontrado.");
-            return;
+            return list;
         }
-
-        equipamentos.Remove(equipamento);
-        Console.WriteLine("Equipamento excluído com sucesso!");
     }
 }

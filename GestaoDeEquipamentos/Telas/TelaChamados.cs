@@ -1,18 +1,19 @@
 ﻿using GestaoDeEquipamentos.Entities;
+using GestaoDeEquipamentos.Repositorio;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace GestaoDeEquipamentos.Telas
 {
-    internal class TelaChamados
+    internal class TelaChamados : Registro<Chamado>
     {
-        private List<Chamado> chamados = new List<Chamado>();
-        private List<Equipamento> equipamentos = new List<Equipamento>(); // Compartilhado
-        private int contadorId = 1;
+        private List<Equipamento> equipamentos;
 
         public TelaChamados(List<Equipamento> equipamentos)
         {
             this.equipamentos = equipamentos;
+            this.list = new List<Chamado>(); // inicializa a lista herdada
         }
 
         public void MenuChamados()
@@ -20,55 +21,42 @@ namespace GestaoDeEquipamentos.Telas
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("(1) Visualizar chamados");
-                Console.WriteLine("(2) Registrar chamado");
-                Console.WriteLine("(3) Editar chamado");
-                Console.WriteLine("(4) Excluir chamado");
+                Console.WriteLine("---- MENU DE CHAMADOS ----");
+                Console.WriteLine("(1) Cadastrar");
+                Console.WriteLine("(2) Visualizar");
+                Console.WriteLine("(3) Editar");
+                Console.WriteLine("(4) Excluir");
                 Console.WriteLine("(5) Voltar");
-
-                char opcao = char.Parse(Console.ReadLine());
+                Console.Write("Escolha uma opção: ");
+                string opcao = Console.ReadLine();
 
                 switch (opcao)
                 {
-                    case '1':
-                        VisualizarChamados();
+                    case "1":
+                        Cadastrar();
                         break;
-                    case '2':
-                        RegistrarChamado();
+                    case "2":
+                        Visualizar();
                         break;
-                    case '3':
-                        EditarChamado();
+                    case "3":
+                        Editar();
                         break;
-                    case '4':
-                        ExcluirChamado();
+                    case "4":
+                        Excluir();
                         break;
-                    case '5':
+                    case "5":
                         return;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        break;
                 }
 
-                Console.WriteLine("Pressione qualquer tecla para continuar...");
+                Console.WriteLine("\nPressione qualquer tecla para continuar...");
                 Console.ReadKey();
             }
         }
 
-        public void VisualizarChamados()
-        {
-            Console.Clear();
-
-            if (chamados.Count == 0)
-            {
-                Console.WriteLine("Nenhum chamado registrado.");
-                return;
-            }
-
-            foreach (Chamado c in chamados)
-            {
-                int diasAbertos = (DateTime.Now - c.DataAbertura).Days;
-                Console.WriteLine($"ID: {c.Id} | Título: {c.Titulo} | Equipamento: {c.Equipamento.Name} | Data Abertura: {c.DataAbertura.ToShortDateString()} | Dias em aberto: {diasAbertos}");
-            }
-        }
-
-        public void RegistrarChamado()
+        private void Cadastrar()
         {
             Console.Clear();
             if (equipamentos.Count == 0)
@@ -77,43 +65,71 @@ namespace GestaoDeEquipamentos.Telas
                 return;
             }
 
-            Chamado chamado = new Chamado();
-            chamado.Id = contadorId++;
-
             Console.Write("Título do chamado: ");
-            chamado.Titulo = Console.ReadLine();
+            string titulo = Console.ReadLine();
 
             Console.Write("Descrição do chamado: ");
-            chamado.Descricao = Console.ReadLine();
+            string descricao = Console.ReadLine();
 
             Console.WriteLine("Selecione o equipamento pelo ID:");
             foreach (Equipamento e in equipamentos)
-                Console.WriteLine($"ID: {e.Id} | Nome: {e.Name}");
+                Console.WriteLine($"ID: {e.ID} | Nome: {e.Nome}");
 
-            int idEquipamento = int.Parse(Console.ReadLine());
-            Equipamento equipamentoSelecionado = equipamentos.Find(e => e.Id == idEquipamento);
+            if (!int.TryParse(Console.ReadLine(), out int idEquipamento))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
 
+            Equipamento equipamentoSelecionado = equipamentos.Find(e => e.ID == idEquipamento);
             if (equipamentoSelecionado == null)
             {
                 Console.WriteLine("Equipamento não encontrado.");
                 return;
             }
 
-            chamado.Equipamento = equipamentoSelecionado;
-            chamado.DataAbertura = DateTime.Now;
+            Chamado chamado = new Chamado(
+                id: list.Count + 1,
+                titulo: titulo,
+                descricao: descricao,
+                equipamento: equipamentoSelecionado,
+                dataAbertura: DateTime.Now
+            );
 
-            chamados.Add(chamado);
+            Adicionar(chamado); // herdado
             Console.WriteLine("Chamado registrado com sucesso!");
         }
 
-        public void EditarChamado()
+        private void Visualizar()
         {
             Console.Clear();
-            VisualizarChamados();
-            Console.Write("\nDigite o ID do chamado que deseja editar: ");
-            int id = int.Parse(Console.ReadLine());
 
-            Chamado chamado = chamados.Find(c => c.Id == id);
+            if (list.Count == 0)
+            {
+                Console.WriteLine("Nenhum chamado registrado.");
+                return;
+            }
+
+            foreach (Chamado c in list)
+            {
+                int diasAbertos = (DateTime.Now - c.DataAbertura).Days;
+                Console.WriteLine($"ID: {c.Id} | Título: {c.Titulo} | Equipamento: {c.Equipamento.Nome} | Data Abertura: {c.DataAbertura:dd/MM/yyyy} | Dias em aberto: {diasAbertos}");
+            }
+        }
+
+        private void Editar()
+        {
+            Console.Clear();
+            Visualizar();
+
+            Console.Write("\nDigite o ID do chamado que deseja editar: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
+
+            Chamado chamado = list.Find(c => c.Id == id);
             if (chamado == null)
             {
                 Console.WriteLine("Chamado não encontrado.");
@@ -121,38 +137,52 @@ namespace GestaoDeEquipamentos.Telas
             }
 
             Console.Write("Novo título: ");
-            chamado.Titulo = Console.ReadLine();
+            string titulo = Console.ReadLine();
 
             Console.Write("Nova descrição: ");
-            chamado.Descricao = Console.ReadLine();
+            string descricao = Console.ReadLine();
 
             Console.WriteLine("Selecione o novo equipamento pelo ID:");
             foreach (Equipamento e in equipamentos)
-                Console.WriteLine($"ID: {e.Id} | Nome: {e.Name}");
+                Console.WriteLine($"ID: {e.ID} | Nome: {e.Nome}");
 
-            int idEquipamento = int.Parse(Console.ReadLine());
-            Equipamento equipamentoSelecionado = equipamentos.Find(e => e.Id == idEquipamento);
-            if (equipamentoSelecionado != null)
-                chamado.Equipamento = equipamentoSelecionado;
+            if (!int.TryParse(Console.ReadLine(), out int idEquipamento))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
 
+            Equipamento equipamentoSelecionado = equipamentos.Find(e => e.ID == idEquipamento);
+            if (equipamentoSelecionado == null)
+            {
+                Console.WriteLine("Equipamento não encontrado.");
+                return;
+            }
+
+            chamado.AtualiazaDados(titulo, descricao, equipamentoSelecionado);
             Console.WriteLine("Chamado atualizado com sucesso!");
         }
 
-        public void ExcluirChamado()
+        private void Excluir()
         {
             Console.Clear();
-            VisualizarChamados();
-            Console.Write("\nDigite o ID do chamado que deseja excluir: ");
-            int id = int.Parse(Console.ReadLine());
+            Visualizar();
 
-            Chamado chamado = chamados.Find(c => c.Id == id);
+            Console.Write("\nDigite o ID do chamado que deseja excluir: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("ID inválido.");
+                return;
+            }
+
+            Chamado chamado = list.Find(c => c.Id == id);
             if (chamado == null)
             {
                 Console.WriteLine("Chamado não encontrado.");
                 return;
             }
 
-            chamados.Remove(chamado);
+            Remover(chamado); 
             Console.WriteLine("Chamado excluído com sucesso!");
         }
     }

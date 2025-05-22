@@ -1,5 +1,4 @@
-﻿using GestaoDeEquipamentos.Entities;
-using GestaoDeEquipamentos.Telas;
+﻿using GestaoDeEquipamentos.Telas;
 
 namespace GestaoEmEquipamentos
 {
@@ -7,7 +6,6 @@ namespace GestaoEmEquipamentos
     {
         static void Main(string[] args)
         {
-            
             TelaMenu menu = new TelaMenu();
             menu.Menu();
         }

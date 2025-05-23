@@ -10,7 +10,7 @@ namespace GestaoDeEquipamentos.Telas
     {
         private List<Equipamento> equipamentos;
 
-        public TelaChamados(List<Equipamento> equipamentos, string entidade) : base(entidade)
+        public TelaChamados(List<Equipamento> equipamentos) : base("Chamados")
         {
             this.equipamentos = equipamentos;
             this.list = new List<Chamado>();
@@ -103,7 +103,7 @@ namespace GestaoDeEquipamentos.Telas
             foreach (Chamado c in list)
             {
                 int diasAbertos = (DateTime.Now - c.DataAbertura).Days;
-                Console.WriteLine($"ID: {c.Id} | Título: {c.Titulo} | Equipamento: {c.Equipamento.Nome} | Data Abertura: {c.DataAbertura:dd/MM/yyyy} | Dias em aberto: {diasAbertos}");
+                Console.WriteLine($"ID: {c.Id} | Título: {c.Titulo} | Equipamento: {c.Equipamento.Nome} | Data Abertura: {c.DataAbertura:dd/MM/yyyy} | Dias em aberto: {diasAbertos}\nDescricao: {c.Descricao}");
             }
         }
 

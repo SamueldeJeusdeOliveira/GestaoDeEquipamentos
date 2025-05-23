@@ -51,8 +51,11 @@ namespace GestaoDeEquipamentos.Repositorio
             Console.WriteLine($"(4) Excluir {nomeEntidade}");
             Console.WriteLine($"(5) Voltar");
             Console.Write("Escolha uma opção: ");
-
-            return Console.ReadKey().KeyChar;
+            
+            char r = Console.ReadKey().KeyChar;
+            Console.Clear();
+            return r;
+            
         }
 
     }

@@ -7,7 +7,7 @@ namespace GestaoDeEquipamentos.Telas
     {
         private List<Equipamento> equipamentos;
         private List<Fabricantes> fabricantes;
-        public TelaFabricantes(List<Equipamento> equipamentos, List<Fabricantes> fabricantesList, string entidade) : base(entidade)
+        public TelaFabricantes(List<Equipamento> equipamentos, List<Fabricantes> fabricantesList) : base("Fabricantes")
         {
             fabricantes = fabricantesList;
             this.equipamentos = equipamentos;

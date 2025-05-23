@@ -9,9 +9,9 @@ namespace GestaoDeEquipamentos.Telas
             List<Equipamento> equipamentosCompartilhados = new List<Equipamento>();
             List<Fabricantes> fabricantesCompartilhados = new List<Fabricantes>();
 
-            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(fabricantesCompartilhados, equipamentosCompartilhados, "Equipamentos");
-            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados, fabricantesCompartilhados, "Fabricantes");
-            TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados, "Chamados");
+            TelaEquipamentos telaEquipamentos = new TelaEquipamentos(fabricantesCompartilhados, equipamentosCompartilhados);
+            TelaFabricantes telaFabricantes = new TelaFabricantes(equipamentosCompartilhados, fabricantesCompartilhados);
+            TelaChamados telaChamados = new TelaChamados(equipamentosCompartilhados);
 
 
             while (true)
@@ -24,10 +24,10 @@ namespace GestaoDeEquipamentos.Telas
                 Console.WriteLine("(4) Sair");
                 Console.Write("Escolha uma opção: ");
 
-                string entrada = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(entrada)) continue;
+                ConsoleKeyInfo tecla = Console.ReadKey();
+                char opcao = tecla.KeyChar;
 
-                char opcao = entrada[0];
+                if (char.IsWhiteSpace(opcao)) continue;
 
                 switch (opcao)
                 {
